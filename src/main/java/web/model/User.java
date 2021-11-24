@@ -11,7 +11,7 @@ public class User {
     private String surName;
     private int age;
 
-    public User() {
+    public User(){
     }
 
     public User(int id, String name, String surName, int age) {

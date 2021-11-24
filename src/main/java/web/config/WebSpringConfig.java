@@ -13,12 +13,11 @@ import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
 @Configuration
-@ComponentScan(basePackages = "web")
+@ComponentScan("web")
 @EnableWebMvc
 public class WebSpringConfig implements WebMvcConfigurer {
 
     private ApplicationContext applicationContext;
-
     @Autowired
     public WebSpringConfig(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;

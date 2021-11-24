@@ -11,11 +11,10 @@ import web.service.UserServiceImpl;
 @RequestMapping("/users")
 public class UserController {
 
-    @Autowired
     private UserServiceImpl userService;
-
-    public UserController() {
-
+    @Autowired
+    public UserController(UserServiceImpl userService) {
+        this.userService = userService;
     }
 
     @GetMapping()

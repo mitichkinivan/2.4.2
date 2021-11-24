@@ -1,17 +1,17 @@
 package web.dao;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 import web.model.User;
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import java.util.List;
 
 
-@Repository
+@Component
 public class UserDAOImpl implements UserDAO{
 
-    @Autowired
+    @PersistenceContext
     private EntityManager entityManager;
 
     public List<User> allUsers() {
@@ -22,7 +22,6 @@ public class UserDAOImpl implements UserDAO{
         TypedQuery<User> q = entityManager.createQuery("select user from User user where user.id = :id", User.class);
         q.setParameter("id", id);
         User result = q.getResultList().stream().filter(user -> user.getId() == id).findAny().orElse(null);
-        System.out.println(result);
         return result;
     }
 
