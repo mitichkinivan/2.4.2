@@ -27,6 +27,7 @@ import java.util.Properties;
 public class WebHibernateConfig implements WebMvcConfigurer {
 
     private final Environment env;
+
     @Autowired
     public WebHibernateConfig(Environment env) {
         this.env = env;
@@ -70,12 +71,4 @@ public class WebHibernateConfig implements WebMvcConfigurer {
     public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
         return new PersistenceExceptionTranslationPostProcessor();
     }
-
-   // Properties additionalProperties() {
-    //    Properties properties = new Properties();
-    //    properties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
-     //   properties.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
-//
-     //   return properties;
- //   }
 }

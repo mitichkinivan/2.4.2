@@ -34,7 +34,7 @@ public class UserDAOImpl implements UserDAO{
         user.setName(updateUser.getName());
         user.setSurName(updateUser.getSurName());
         user.setAge(updateUser.getAge());
-        entityManager.persist(user);
+        entityManager.merge(user);
     }
 
     public void delete(int id) {
