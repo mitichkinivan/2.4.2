@@ -1,5 +1,9 @@
 <html>
 <body>
-<h2>Hello World!</h2>
+<h2>
+    Hi!
+    <br/>
+    <a href="/login">Sign in</a>
+</h2>
 </body>
 </html>

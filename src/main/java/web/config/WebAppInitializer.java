@@ -2,6 +2,7 @@ package web.config;
 
 import org.springframework.web.filter.HiddenHttpMethodFilter;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
+import web.configSecurity.SecurityConfig;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -11,7 +12,9 @@ public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServlet
 
     @Override
     protected Class<?>[] getRootConfigClasses() {
-        return null;
+        return new Class<?>[]{
+                SecurityConfig.class, WebHibernateConfig.class
+        };
     }
 
 
@@ -35,6 +38,6 @@ public class WebAppInitializer extends AbstractAnnotationConfigDispatcherServlet
 
     private void registerHiddenFieldFilter(ServletContext aContext) {
         aContext.addFilter("hiddenHttpMethodFilter",
-                new HiddenHttpMethodFilter()).addMappingForUrlPatterns(null ,true, "/*");
+                new HiddenHttpMethodFilter()).addMappingForUrlPatterns(null, true, "/*");
     }
 }
