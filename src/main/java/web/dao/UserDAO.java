@@ -1,19 +1,20 @@
 package web.dao;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import web.model.User;
 
 import java.util.List;
 
 public interface UserDAO {
-    List<User> allUsers();
+    List<User> getAllUsers();
 
-    User userById(int id);
+    void addUser(User user);
 
-    void save(User user);
+    User getUser(long id);
 
-    void update(int id, User updateUser);
+    void deleteUser(long id);
 
-    void delete(int id);
+    void updateUser(User user);
 
-    User getUserByLogin(String username);
+    UserDetails loadUserByUsername(String userName);
 }

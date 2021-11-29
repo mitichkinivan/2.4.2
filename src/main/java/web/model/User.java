@@ -1,51 +1,104 @@
 package web.model;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table
+@Table(name = "users")
 public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
 
-    @Column
+    @Column(name = "name")
     private String name;
-    @Column
-    private String surName;
 
-    @Column(unique = true)
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name = "e_mail")
+    private String email;
+
+    @Column(name = "username", unique = true)
     private String username;
-    @Column
+
+    @Column(name = "password")
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_role",
+    @Fetch(FetchMode.JOIN)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.REFRESH})
+    @JoinTable(name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> role;
+    private Set<Role> roles = new HashSet<>();
 
     public User() {
     }
 
-    public User(String name, String surName, String username, String password, Set<Role> role) {
+    public User(String name, String lastName, String email, String username, String password) {
         this.name = name;
-        this.surName = surName;
+        this.lastName = lastName;
+        this.email = email;
         this.username = username;
         this.password = password;
-        this.role = role;
     }
 
-    public int getId() {
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public String getUserRole() {
+        String role = getRoles().toString();
+
+        if (role != null) {
+            return role;
+        } else {
+            return "User has no Roles";
+        }
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    public void addRole(Role role) {
+        this.roles.add(role);
+        role.getUsers().add(this);
+    }
+
+    public void removeRole(Role role) {
+        this.roles.remove(role);
+        role.getUsers().remove(this);
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -57,34 +110,29 @@ public class User implements UserDetails {
         this.name = name;
     }
 
-    public String getSurName() {
-        return surName;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setSurName(String surName) {
-        this.surName = surName;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public String getEmail() {
+        return email;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public Set<Role> getRole() {
-        return role;
+    public void setUsername(String userName) {
+        this.username = userName;
     }
-
-    public void setRole(Set<Role> role) {
-        this.role = role;
-    }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return role;
+        return roles;
     }
 
     @Override
@@ -115,5 +163,26 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User that = (User) o;
+
+        return id == that.id
+                && name.equals(that.name)
+                && lastName.equals(that.lastName)
+                && username.equals(that.username)
+                && email.equals(that.email)
+                && password.equals(that.password)
+                && roles.equals(that.roles);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, lastName, email, username, password, roles);
     }
 }

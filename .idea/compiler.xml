@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="spring_security_2.4.2(basis_2.3.1)" />
+        <module name="CRUD_Spring_2.3.1" />
+        <module name="2.4.2-master" />
+        <module name="2.4.2_spring_security_(basis_2.3.1)_ChN" />
+        <module name="crud_spring_hiber" />
+      </profile>
+    </annotationProcessing>
+  </component>
+</project>

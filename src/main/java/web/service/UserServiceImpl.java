@@ -2,57 +2,90 @@ package web.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import web.dao.UserDAOImpl;
+import web.dao.RoleDAO;
+import web.dao.UserDAO;
+import web.model.Role;
 import web.model.User;
 
 import java.util.List;
 
-@Service
-@Transactional
-public class UserServiceImpl implements UserService, UserDetailsService {
-    private final UserDAOImpl userDAO;
+@Service("userDetailsServiceImpl")
+public class UserServiceImpl implements UserService {
+
+    private final UserDAO userDAO;
+    private final RoleDAO roleDAO;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserDAOImpl userDAO) {
+    public UserServiceImpl(UserDAO userDAO, RoleDAO roleDAO, PasswordEncoder passwordEncoder) {
         this.userDAO = userDAO;
+        this.roleDAO = roleDAO;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return userDAO.getUserByLogin(username);
+    @Transactional(readOnly = true)
+    public List<User> getAllUsers() {
+        return userDAO.getAllUsers();
     }
 
     @Override
-    public List<User> allUsers() {
-        return userDAO.allUsers();
+    @Transactional(readOnly = true)
+    public User getUser(long id) {
+        return userDAO.getUser(id);
     }
 
     @Override
-    public User userById(int id) {
-        return userDAO.userById(id);
+    @Transactional
+    public void addUser(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userDAO.addUser(user);
     }
 
     @Override
-    public void save(User user) {
-        userDAO.save(user);
+    @Transactional
+    public void updateUser(User user) {
+        if (!user.getPassword().equals(getUser(user.getId()).getPassword())) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
+        userDAO.updateUser(user);
     }
 
     @Override
-    public void update(int id, User updateUser) {
-        userDAO.update(id, updateUser);
+    @Transactional
+    public void deleteUser(long id) {
+        userDAO.deleteUser(id);
     }
 
     @Override
-    public void delete(int id) {
-        userDAO.delete(id);
+    public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
+        return userDAO.loadUserByUsername(userName);
     }
 
     @Override
-    public User getUserByLogin(String username) {
-        return userDAO.getUserByLogin(username);
+    @Transactional
+    public void addInitUsers() {
+        User admin = new User("ivan", "ivanov", "admin@mail.com", "admin", "admin");
+        User user = new User("petr", "petrov", "user@mail.com", "user", "user");
+        Role adminRole = new Role("ROLE_ADMIN");
+        Role userRole = new Role("ROLE_USER");
+
+        addUser(admin);
+        addUser(user);
+        roleDAO.saveRole(adminRole);
+        roleDAO.saveRole(userRole);
+
+        admin.addRole(adminRole);
+        admin.addRole(userRole);
+        user.addRole(userRole);
+
+        adminRole.addUser(admin);
+        userRole.addUser(admin);
+        userRole.addUser(user);
     }
 }

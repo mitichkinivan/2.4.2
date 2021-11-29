@@ -3,59 +3,93 @@ package web.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import web.model.Role;
 import web.model.User;
-import web.service.UserServiceImpl;
+import web.service.RoleService;
+import web.service.UserService;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Controller
-@RequestMapping("/admin")
+@RequestMapping(value = "/admin")
 public class AdminController {
 
-    private UserServiceImpl userService;
+    private final UserService userService;
+    private final RoleService roleService;
 
     @Autowired
-    public AdminController(UserServiceImpl userService) {
+    public AdminController(UserService userService, RoleService roleService) {
         this.userService = userService;
+        this.roleService = roleService;
     }
 
-    public AdminController() {
+    @GetMapping
+    public String printUsers(Model model) {
+        model.addAttribute("users", userService.getAllUsers());
+
+        return "/admin";
     }
 
-    @GetMapping()
-    public String allUsers(Model model) {
-        model.addAttribute("user", userService.allUsers());
-        return "admin/allUsers";
+    @GetMapping("/new")
+    public String addNewUser(@ModelAttribute("user") User user, Model model) {
+        model.addAttribute("roles", roleService.getAllRoles());
+
+        return "new";
     }
 
-    @GetMapping("/newUser")
-    public String newUser(Model model) {
-        model.addAttribute("user", new User());
-        return "admin/newUser";
-    }
+    @PostMapping(value = "")
+    public String createUser(@RequestParam String name, @RequestParam String lastName,
+                             @RequestParam String email, @RequestParam String username,
+                             @RequestParam String password, @RequestParam List<String> roles) {
+        Set<Role> userRoles = new HashSet<>();
 
-    @PostMapping()
-    public String saveUser(@ModelAttribute("user") User user) {
-        userService.save(user);
+        for (String role : roles) {
+            userRoles.add(roleService.getRole(role));
+        }
+
+        User user = new User(name, lastName, email, username, password);
+        user.setRoles(userRoles);
+        userService.addUser(user);
+
         return "redirect:/admin";
     }
 
-    @GetMapping("/{id}/userById")
-    public String userById(@PathVariable("id") int id, Model model) {
-        model.addAttribute("user", userService.userById(id));
-        return "admin/userById";
+    @GetMapping(value = "/{id}/update")
+    public String update(@PathVariable("id") long id, Model model) {
+        model.addAttribute("user", userService.getUser(id));
+        model.addAttribute("roles", roleService.getAllRoles());
+
+        return "/update";
     }
 
-    @PatchMapping("{id}")
-    public String update(@ModelAttribute("user") User user,
-                         @PathVariable("id") int id) {
-        userService.update(id, user);
+    @PutMapping("/update/{id}")
+    public String updateUser(@ModelAttribute("user") User user, @RequestParam List<String> roles) {
+        Set<Role> userRoles = new HashSet<>();
+
+        for (String role : roles) {
+            userRoles.add(roleService.getRole(role));
+        }
+
+        user.setRoles(userRoles);
+        userService.updateUser(user);
+
         return "redirect:/admin";
     }
 
-    @DeleteMapping("{id}")
-    public String delete(@ModelAttribute("user") User user,
-                         @PathVariable("id") int id) {
-        userService.delete(id);
+    @DeleteMapping(value = "/{id}")
+    public String delete(@PathVariable("id") int id) {
+        userService.deleteUser(id);
+
         return "redirect:/admin";
     }
 }
